@@ -19,6 +19,52 @@ The platform uses a **constant product market maker (CPMM)** to dynamically adju
 
 The platform uses a constant product formula to calculate entry fees dynamically based on current market consensus. Entry fees adjust in real-time as votes are cast, creating a self-balancing market.
 
+## Slippage Protection
+
+Dynamic pricing creates race conditions between when a user requests a price quote and when their payment settles. Without protection, attackers could manipulate prices or users could overpay unexpectedly.
+
+### Protection Mechanisms
+
+The platform uses a three-layer defense:
+
+<AccordionGroup>
+  <Accordion title="1. Quote Expiry (Time-Based)" icon="clock">
+    **What**: Quotes expire after 60 seconds
+
+    **Why**: Prevents stale quotes from settling hours later during rapid market movement
+
+    **Effect**: Limits the window for sandwich attacks and forces refresh during volatility
+  </Accordion>
+
+  <Accordion title="2. Slippage Tolerance (Price-Based)" icon="chart-line">
+    **What**: Users specify maximum acceptable price movement (default 5%)
+
+    **Why**: Front-running attacks are limited to the slippage tolerance
+
+    **Effect**: Users control acceptable price movement; negative slippage (favorable price) always accepted
+  </Accordion>
+
+  <Accordion title="3. Max Amount Cap (Payment-Based)" icon="shield-halved">
+    **What**: Pre-calculated upper price bound based on quoted price + slippage
+
+    **Why**: Hard cap prevents unexpected overpayment
+
+    **Effect**: Double-checks facilitator enforcement and protects users from extreme price spikes
+  </Accordion>
+</AccordionGroup>
+
+### Attack Prevention
+
+This three-layer approach prevents common manipulation attacks:
+
+- **Front-Running**: Limited to slippage tolerance (e.g., 5% max price increase)
+- **Stale Quotes**: Automatically rejected after 60 seconds
+- **Sandwich Attacks**: Narrow time window and slippage caps make attacks unprofitable
+
+<Note>
+  Users can customize slippage tolerance via query parameter. Higher tolerance accepts more price movement; lower tolerance provides stricter protection but may require more retries.
+</Note>
+
 ## Proportional Payouts
 
 Winners share the total pot proportionally based on their stake.
