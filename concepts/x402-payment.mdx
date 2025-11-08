@@ -1,0 +1,145 @@
+---
+title: "x402 Payment Protocol"
+description: "Gasless voting for humans and AI agents"
+---
+
+## What is x402?
+
+**x402** is a gasless payment protocol that enables AI agents and humans to make blockchain transactions without holding native gas tokens (SOL).
+
+<CardGroup cols={3}>
+  <Card title="Gasless Transactions" icon="bolt">
+    Facilitator pays Solana fees, voter only needs USDC
+  </Card>
+  <Card title="AI-Native" icon="robot">
+    Designed for AI agents
+  </Card>
+  <Card title="Atomic Verification" icon="check-double">
+    Payment confirmed before resource access granted
+  </Card>
+</CardGroup>
+
+<Note>
+  **Spec**: [https://x402.org](https://x402.org)
+</Note>
+
+## Facilitators
+
+x402 requires a **facilitator** - a third-party service that pays gas fees and broadcasts transactions.
+
+| Provider | Devnet | Mainnet | URL |
+|----------|--------|---------|-----|
+| **PayAI** (Primary) | ✅ | ✅ | `https://facilitator.payai.network` |
+| **Coinbase** (Backup) | ✅ | ❌ | `https://x402.org/facilitator` |
+
+## Vote Payment Flow
+
+### Step-by-Step Breakdown
+
+<Steps>
+  <Step title="1. Initial Vote Request">
+    User requests to vote without payment proof
+
+      </Step>
+
+  <Step title="2. API Returns 402 Payment Required">
+    Server calculates dynamic entry fee and returns payment requirements
+
+    **Response**: `402 Payment Required`
+
+    
+    **Headers**:
+      </Step>
+
+  <Step title="3. Build Transaction">
+    Client builds USDC SPL token transfer
+
+      </Step>
+
+  <Step title="4. Sign Transaction">
+    User signs transaction (wallet approval)
+
+    
+    <Warning>
+      Voter signs the transaction but does **NOT** pay gas fees - facilitator pays SOL costs
+    </Warning>
+  </Step>
+
+  <Step title="5. Submit Signed Transaction">
+    Client submits signed transaction with `X-Payment` header
+
+      </Step>
+
+  <Step title="6. Payment Verification & Settlement">
+    API verifies and settles payment via facilitator
+
+      </Step>
+
+  <Step title="7. Record Vote">
+    After successful settlement, API records vote in database
+
+      </Step>
+
+  <Step title="8. Return Confirmation">
+    API returns vote confirmation to client
+
+      </Step>
+</Steps>
+
+## Payment Requirements Structure
+
+The `X-Payment-Required` header contains the following information:
+
+- **payTo**: The recipient address (poll wallet public key)
+- **amount**: The entry fee in base units (e.g., "769000" for 0.769 USDC)
+- **currency**: The SPL token mint address (USDC)
+- **resource**: The API endpoint URL being accessed
+- **extra.feePayer**: The x402 facilitator's fee payer address (pays SOL gas fees)
+
+This structure tells the voter exactly how to construct the payment transaction, including who pays the gas fees (the facilitator, not the voter).
+
+## Security Considerations
+
+<AccordionGroup>
+  <Accordion title="Transaction Verification" icon="shield-check">
+    API verifies transaction structure before settlement:
+    - Correct recipient (poll wallet)
+    - Correct amount (dynamic entry fee)
+    - Correct currency (USDC)
+    - Valid signature from voter
+  </Accordion>
+
+  <Accordion title="On-Chain Confirmation" icon="link">
+    After settlement, API waits for blockchain confirmation before recording vote.
+
+    **Benefit**: Prevents double-voting and ensures payment actually executed
+  </Accordion>
+
+  <Accordion title="Facilitator Trust" icon="handshake">
+    System trusts facilitator to:
+    - Broadcast transactions honestly
+    - Pay gas fees
+    - Not censor transactions
+
+    **Mitigation**: Multiple facilitators available (PayAI, Coinbase)
+  </Accordion>
+</AccordionGroup>
+
+## Error Handling
+
+| Error Code | Reason | Solution |
+|-----------|--------|----------|
+| **402** | Payment required / invalid | Build and submit proper x402 payment |
+| **400** | Poll expired / already voted | Check poll status, verify voter hasn't voted |
+| **500** | Facilitator down / settlement failed | Retry or use backup facilitator |
+
+## Next Steps
+
+<CardGroup cols={3}>
+  <Card title="Dynamic Pricing" icon="chart-line" href="/concepts/dynamic-pricing">
+    Understand how entry fees are calculated
+  </Card>
+  <Card title="x402 Spec" icon="book" href="https://x402.org">
+    Read the full x402 protocol specification
+  </Card>
+</CardGroup>

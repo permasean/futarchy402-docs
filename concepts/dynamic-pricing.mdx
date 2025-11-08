@@ -1,0 +1,97 @@
+---
+title: "Dynamic Pricing"
+description: "Market-driven entry fees using constant product formula"
+---
+
+## Overview
+
+The platform uses a **constant product market maker (CPMM)** to dynamically adjust vote entry fees based on market consensus. This creates fair, efficient pricing that rewards early voters and prevents whale manipulation.
+
+<Card title="Formal Classification" icon="book">
+  **Democratic Parimutuel Prediction Market with Proportional Payouts**
+  
+  - **Pricing**: Constant Product AMM  
+  - **Outcome**: Democratic (1 wallet = 1 vote)  
+  - **Payouts**: Plutocratic (proportional to stake)
+</Card>
+
+## Core Formula
+
+The platform uses a constant product formula to calculate entry fees dynamically based on current market consensus. Entry fees adjust in real-time as votes are cast, creating a self-balancing market.
+
+## Proportional Payouts
+
+Winners share the total pot proportionally based on their stake.
+
+### What's in the Pot?
+
+The total payout pot consists of two sources:
+
+1. **Poll Pool (Bonus)**: Initial USDC contributed from the treasury when the poll is created. This is a fixed bonus amount that incentivizes participation.
+
+2. **Vote Entry Fees**: All USDC paid by voters (both winners and losers) as entry fees to cast their votes. These fees accumulate throughout the voting period.
+
+**Total Pot = Poll Pool + All Vote Entry Fees**
+
+This means even if you vote on the winning side, you're competing for a share of the combined pool that includes both the initial bonus and everyone's entry fees.
+
+### How Payouts Work
+
+Each winner receives a proportional share based on how much they paid relative to all winning votes:
+
+**Your Payout = (Your Entry Fee / Total Winning Entry Fees) × Total Pot**
+
+<Success>
+  **Key Property**: All winners receive the **same ROI** regardless of entry price - perfectly fair!
+</Success>
+
+## Whale Resistance
+
+The platform prevents wealthy actors from dominating outcomes through two key mechanisms:
+
+**1. Democratic Voting (1 Wallet = 1 Vote)**
+
+Outcomes are determined by vote count, not by money spent. To control the outcome, you need 51% of the votes - not 51% of the capital.
+
+**2. Fixed Entry Fees**
+
+Unlike traditional prediction markets where you can buy unlimited shares, each vote requires paying the current entry fee - no more, no less. You cannot buy multiple votes from a single wallet.
+
+### Why Whales Can't Win
+
+<AccordionGroup>
+  <Accordion title="To dominate outcome" icon="gavel">
+    **Requirement**: Need 51% of votes (not 51% of money)
+
+    **Cost**: 51 wallets × current entry fee
+
+    **Problem**: Entry fee increases with each vote, making bulk buying exponentially expensive
+  </Accordion>
+
+  <Accordion title="To dominate payouts" icon="coins">
+    **Requirement**: Create 51 wallets, pay 51× entry fees
+
+    **Result**: Expensive, inefficient, and must share winnings 51 ways
+
+    **Disincentive**: ROI is the same for all winners - no advantage to Sybil attack
+  </Accordion>
+</AccordionGroup>
+
+## Fairness Analysis
+
+| Dimension | Verdict | Reasoning |
+|-----------|---------|-----------|
+| **Economic** | ✅ FAIR | No arbitrage, proportional rewards, info revelation |
+| **Democratic** | ✅ FAIR | 1 wallet = 1 vote, majority wins, whale-resistant |
+| **Game-Theoretic** | ✅ FAIR | Truth-telling incentivized, early bets rewarded |
+| **Distributional** | ⚠️ MIXED | Early voters advantaged (by design) |
+
+<Tip>
+  Early voters get better prices, but all winners receive the same ROI. This incentivizes participation while maintaining fairness.
+</Tip>
+
+## Next Steps
+
+<Card title="x402 Payment" icon="bolt" href="/concepts/x402-payment">
+  Understand the gasless voting flow
+</Card>
